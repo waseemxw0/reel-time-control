@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook, Linkedin } from "lucide-react";
 import SnapchatIcon from "./icons/SnapchatIcon";
+import PinterestIcon from "./icons/PinterestIcon";
 import { PostStats, Platform } from "@/types";
 
 // Mock data for post stats
@@ -26,6 +27,7 @@ const mockPostStats: PostStats[] = [
     id: "1",
     postId: "post1",
     platform: "Instagram Reels",
+    account: "@ig_main",
     date: new Date(2025, 4, 15),
     views: 24500,
     likes: 1850,
@@ -35,6 +37,7 @@ const mockPostStats: PostStats[] = [
     id: "2",
     postId: "post1",
     platform: "TikTok",
+    account: "@tiktok_main",
     date: new Date(2025, 4, 15),
     views: 38200,
     likes: 3420,
@@ -44,6 +47,7 @@ const mockPostStats: PostStats[] = [
     id: "3",
     postId: "post2",
     platform: "YouTube Shorts",
+    account: "@yt_motivation",
     date: new Date(2025, 4, 17),
     views: 15700,
     likes: 982,
@@ -53,6 +57,7 @@ const mockPostStats: PostStats[] = [
     id: "4",
     postId: "post3",
     platform: "Facebook Reels",
+    account: "@fb_main",
     date: new Date(2025, 4, 19),
     views: 8400,
     likes: 542,
@@ -62,10 +67,41 @@ const mockPostStats: PostStats[] = [
     id: "5",
     postId: "post4",
     platform: "Twitter (X)",
+    account: "@x_main",
     date: new Date(2025, 4, 20),
     views: 12900,
     likes: 856,
     comments: 42
+  },
+  {
+    id: "6",
+    postId: "post5",
+    platform: "Pinterest",
+    account: "Motivation Board",
+    date: new Date(2025, 4, 21),
+    views: 9700,
+    likes: 478,
+    comments: 15
+  },
+  {
+    id: "7",
+    postId: "post6",
+    platform: "LinkedIn",
+    account: "AI Biz Page",
+    date: new Date(2025, 4, 22),
+    views: 7800,
+    likes: 342,
+    comments: 56
+  },
+  {
+    id: "8",
+    postId: "post7",
+    platform: "Snapchat",
+    account: "@snap_fitness",
+    date: new Date(2025, 4, 22),
+    views: 13600,
+    likes: 890,
+    comments: 32
   }
 ];
 
@@ -87,6 +123,10 @@ const getPlatformIcon = (platform: Platform) => {
       return <Twitter size={16} className="text-twitter" />;
     case "Snapchat":
       return <SnapchatIcon size={16} className="text-snapchat" />;
+    case "Pinterest":
+      return <PinterestIcon size={16} className="text-red-600" />;
+    case "LinkedIn":
+      return <Linkedin size={16} className="text-blue-700" />;
     default:
       return null;
   }
@@ -114,6 +154,7 @@ const RecentPostsTable: React.FC = () => {
             <TableRow>
               <TableHead>Date</TableHead>
               <TableHead>Platform</TableHead>
+              <TableHead>Account</TableHead>
               <TableHead className="text-right">Views</TableHead>
               <TableHead className="text-right">Likes</TableHead>
               <TableHead className="text-right">Comments</TableHead>
@@ -130,6 +171,9 @@ const RecentPostsTable: React.FC = () => {
                     {getPlatformIcon(stat.platform)}
                     <span>{stat.platform}</span>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm font-medium">{stat.account}</span>
                 </TableCell>
                 <TableCell className="text-right font-medium">{formatNumber(stat.views)}</TableCell>
                 <TableCell className="text-right">{formatNumber(stat.likes)}</TableCell>

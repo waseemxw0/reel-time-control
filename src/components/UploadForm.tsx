@@ -11,75 +11,66 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Platform } from "@/types";
+import { Platform, PlatformAccount, PlatformWithAccounts } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calendar as CalendarIcon, 
   Clock,
-  Check, 
   Upload,
-  Instagram,
-  Youtube,
-  Twitter,
-  Facebook,
-  Linkedin,
+  StickyNote,
+  Lightbulb
 } from "lucide-react";
-import SnapchatIcon from "./icons/SnapchatIcon";
-import PinterestIcon from "./icons/PinterestIcon";
 import { cn } from "@/lib/utils";
+import PlatformToggle from "./PlatformToggle";
+
+// Available platforms with their accounts
+const availablePlatforms: PlatformWithAccounts[] = [
+  {
+    name: "TikTok",
+    accounts: ["@tiktok_main", "@tiktok_gym", "@tiktok_clips"]
+  },
+  {
+    name: "Instagram Reels",
+    accounts: ["@ig_main", "@ig_quotes"]
+  },
+  {
+    name: "YouTube Shorts",
+    accounts: ["@yt_ai", "@yt_motivation"]
+  },
+  {
+    name: "Facebook Reels",
+    accounts: ["@fb_main"]
+  },
+  {
+    name: "Twitter (X)",
+    accounts: ["@x_main", "@x_alt"]
+  },
+  {
+    name: "Snapchat",
+    accounts: ["@snap_ai", "@snap_fitness"]
+  },
+  {
+    name: "Pinterest",
+    accounts: ["Motivation Board", "Quotes Board"]
+  },
+  {
+    name: "LinkedIn",
+    accounts: ["Sam Creator Profile", "AI Biz Page"]
+  }
+];
 
 const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
+  const [selectedAccounts, setSelectedAccounts] = useState<PlatformAccount[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>("12:00");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [notes, setNotes] = useState<string>("");
+  const [contentIntent, setContentIntent] = useState<string>("Growth");
+  const [isExperiment, setIsExperiment] = useState<boolean>(false);
   const { toast } = useToast();
-
-  const platforms: { name: Platform; icon: React.ReactNode; class: string }[] = [
-    { 
-      name: "TikTok", 
-      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.321 5.562a5.124 5.124 0 0 1-.443-.258 6.228 6.228 0 0 1-1.137-.948 6.558 6.558 0 0 1-1.263-1.948H16.5l.003 13.566a2.918 2.918 0 0 1-1.034 2.229 2.917 2.917 0 0 1-2.237.697 2.933 2.933 0 0 1-2.363-2.466 2.93 2.93 0 0 1 1.92-3.321v2.356a.72.72 0 0 0 .11-.074.822.822 0 0 0 .26-.257.7.7 0 0 0 .068-.31.707.707 0 0 0-.457-.659.712.712 0 0 0-.824.223.705.705 0 0 0-.156.443v.057a.719.719 0 0 0 .006.083v-.006c.01.125.05.247.114.355.215.355.618.526 1.305.281a1.546 1.546 0 0 0 .925-1.426l-.001-8.983h-1.74a6.578 6.578 0 0 1 .173 1.409h-1.858a4.693 4.693 0 0 0-.636-1.61 4.71 4.71 0 0 0-1.145-1.294 4.758 4.758 0 0 0-2.869-1.106v1.928a2.997 2.997 0 0 1 1.168.333 2.998 2.998 0 0 1 1.31 1.479c.278.615.336 1.313.166 1.971a2.998 2.998 0 0 1-2.645 2.307v1.847a4.754 4.754 0 0 0 4.356-3.643 4.76 4.76 0 0 0-1.039-4.189v.073h1.902a6.888 6.888 0 0 0-.131-1.533h3.745V4.855a6.606 6.606 0 0 0 1.272.125h.061V3h-2.307c.047-.018.085-.038.132-.056"/></svg>, 
-      class: "tiktok-badge"
-    },
-    { 
-      name: "YouTube Shorts", 
-      icon: <Youtube size={18} />, 
-      class: "youtube-badge"
-    },
-    { 
-      name: "Instagram Reels", 
-      icon: <Instagram size={18} />, 
-      class: "instagram-badge"
-    },
-    { 
-      name: "Facebook Reels", 
-      icon: <Facebook size={18} />, 
-      class: "facebook-badge"
-    },
-    { 
-      name: "Twitter (X)", 
-      icon: <Twitter size={18} />, 
-      class: "twitter-badge"
-    },
-    { 
-      name: "Snapchat", 
-      icon: <SnapchatIcon size={18} />, 
-      class: "snapchat-badge"
-    },
-    { 
-      name: "Pinterest", 
-      icon: <PinterestIcon size={18} />, 
-      class: "pinterest-badge"
-    },
-    { 
-      name: "LinkedIn", 
-      icon: <Linkedin size={18} />, 
-      class: "linkedin-badge"
-    },
-  ];
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -93,16 +84,20 @@ const UploadForm: React.FC = () => {
     }
   };
 
-  const togglePlatform = (platform: Platform) => {
-    setSelectedPlatforms((prev) =>
-      prev.includes(platform)
-        ? prev.filter((p) => p !== platform)
-        : [...prev, platform]
-    );
-  };
-
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTime(e.target.value);
+  };
+
+  const handlePlatformAccountsChange = (accounts: PlatformAccount[]) => {
+    setSelectedAccounts(accounts);
+  };
+
+  const getSelectedPlatforms = (): Platform[] => {
+    const platforms = new Set<Platform>();
+    selectedAccounts.forEach(account => {
+      platforms.add(account.platform);
+    });
+    return Array.from(platforms);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -117,10 +112,10 @@ const UploadForm: React.FC = () => {
       return;
     }
 
-    if (selectedPlatforms.length === 0) {
+    if (selectedAccounts.length === 0) {
       toast({
-        title: "No platforms selected",
-        description: "Please select at least one platform to post to.",
+        title: "No accounts selected",
+        description: "Please select at least one platform account to post to.",
         variant: "destructive"
       });
       return;
@@ -130,18 +125,23 @@ const UploadForm: React.FC = () => {
 
     // Here would normally be API calls to your backend
     setTimeout(() => {
+      const selectedPlatforms = getSelectedPlatforms();
+      
       toast({
         title: "Post scheduled!",
-        description: `Your content will be posted to ${selectedPlatforms.length} platforms on ${format(date!, "PPP")} at ${time}.`,
+        description: `Your content will be posted to ${selectedAccounts.length} accounts across ${selectedPlatforms.length} platforms on ${format(date!, "PPP")} at ${time}.`,
       });
       
       // Reset form
       setVideoFile(null);
       setThumbnailFile(null);
       setCaption("");
-      setSelectedPlatforms([]);
+      setSelectedAccounts([]);
       setDate(new Date());
       setTime("12:00");
+      setNotes("");
+      setContentIntent("Growth");
+      setIsExperiment(false);
       setIsLoading(false);
     }, 1500);
   };
@@ -176,7 +176,7 @@ const UploadForm: React.FC = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="thumbnail">Thumbnail (optional, for YouTube)</Label>
+            <Label htmlFor="thumbnail">Thumbnail (optional, for YouTube, LinkedIn)</Label>
             <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">
               <Input 
                 id="thumbnail" 
@@ -193,7 +193,7 @@ const UploadForm: React.FC = () => {
                 <p className="text-xs text-muted-foreground mt-1">
                   {thumbnailFile 
                     ? `${(thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB` 
-                    : "Optional custom thumbnail for YouTube"
+                    : "Optional custom thumbnail for YouTube/LinkedIn"
                   }
                 </p>
               </Label>
@@ -214,27 +214,20 @@ const UploadForm: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>Choose Platforms</Label>
-            <div className="flex flex-wrap gap-3">
-              {platforms.map((platform) => (
-                <div 
-                  key={platform.name}
-                  onClick={() => togglePlatform(platform.name)}
-                  className={cn(
-                    "platform-badge",
-                    platform.class,
-                    selectedPlatforms.includes(platform.name) && "selected"
-                  )}
-                  title={platform.name}
-                >
-                  {platform.icon}
-                  {selectedPlatforms.includes(platform.name) && (
-                    <span className="absolute -right-1 -bottom-1 h-4 w-4 rounded-full bg-green-500 border-2 border-white flex items-center justify-center">
-                      <Check className="h-3 w-3 text-white" />
-                    </span>
-                  )}
-                </div>
-              ))}
+            <Label>Choose Platforms & Accounts</Label>
+            <PlatformToggle 
+              platforms={availablePlatforms} 
+              selectedAccounts={selectedAccounts}
+              onChange={handlePlatformAccountsChange}
+            />
+            <div className="mt-1">
+              {selectedAccounts.length > 0 ? (
+                <span className="text-xs text-muted-foreground">
+                  {selectedAccounts.length} accounts selected across {getSelectedPlatforms().length} platforms
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">No accounts selected</span>
+              )}
             </div>
           </div>
 
@@ -277,6 +270,53 @@ const UploadForm: React.FC = () => {
                   className="pl-9"
                 />
                 <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Post Notes & Strategy</Label>
+            <div className="relative">
+              <Textarea
+                id="notes"
+                placeholder="Add notes, strategy reminders, or context about this post..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-20 resize-y pl-9"
+              />
+              <StickyNote className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="intent">Content Intent</Label>
+              <select
+                id="intent"
+                value={contentIntent}
+                onChange={(e) => setContentIntent(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              >
+                <option value="Growth">Growth</option>
+                <option value="Lead">Lead Generation</option>
+                <option value="Brand">Brand Building</option>
+                <option value="Viral">Viral Potential</option>
+              </select>
+            </div>
+
+            <div className="space-y-2 flex items-end">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="experiment"
+                  checked={isExperiment}
+                  onChange={(e) => setIsExperiment(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <Label htmlFor="experiment" className="flex items-center space-x-1">
+                  <Lightbulb className="h-4 w-4 text-amber-500" />
+                  <span>Track as Experiment</span>
+                </Label>
               </div>
             </div>
           </div>

@@ -6,6 +6,8 @@ import ContentCalendar from "@/components/ContentCalendar";
 import RecentPostsTable from "@/components/RecentPostsTable";
 import MediaLibrary from "@/components/MediaLibrary";
 import CaptionTemplates from "@/components/CaptionTemplates";
+import WeeklyPerformance from "@/components/WeeklyPerformance";
+import EngagementAlerts from "@/components/EngagementAlerts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 
@@ -17,16 +19,16 @@ const Index = () => {
         <div className="space-y-8">
           <section>
             <div className="mb-6">
-              <h2 className="text-3xl font-bold">Dashboard</h2>
+              <h2 className="text-3xl font-bold">Reel Time Control v2</h2>
               <p className="text-muted-foreground">
-                Control and automate your social media posting across platforms
+                Manage content across 28+ social media accounts with automation, scheduling, analytics, and smart routing
               </p>
             </div>
             
             <div className="grid md:grid-cols-4 gap-4 mb-8">
               <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-6 rounded-lg shadow-md text-white">
-                <div className="text-4xl font-bold mb-1">5</div>
-                <div className="text-sm opacity-90">Scheduled Posts</div>
+                <div className="text-4xl font-bold mb-1">28</div>
+                <div className="text-sm opacity-90">Connected Accounts</div>
               </div>
               <div className="bg-gradient-to-br from-tiktok to-cyan-400 p-6 rounded-lg shadow-md text-black">
                 <div className="text-4xl font-bold mb-1">38.2K</div>
@@ -44,12 +46,14 @@ const Index = () => {
           </section>
           
           <Tabs defaultValue="upload" className="space-y-8">
-            <TabsList>
+            <TabsList className="flex flex-wrap">
               <TabsTrigger value="upload">Upload Content</TabsTrigger>
               <TabsTrigger value="calendar">Content Calendar</TabsTrigger>
               <TabsTrigger value="stats">Performance Stats</TabsTrigger>
               <TabsTrigger value="library">Media Library</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="alerts">Alerts & Failsafes</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upload" className="space-y-6">
@@ -84,6 +88,19 @@ const Index = () => {
                 <CaptionTemplates />
               </div>
             </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="text-xl font-semibold mb-4">Weekly Performance</h3>
+                <WeeklyPerformance />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="alerts" className="space-y-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <EngagementAlerts />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>
@@ -92,7 +109,7 @@ const Index = () => {
         <div className="container mx-auto px-4 md:px-6 text-sm text-muted-foreground">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div>
-              <p>© 2025 Creator Command Center. All rights reserved.</p>
+              <p>© 2025 Reel Time Control v2. All rights reserved.</p>
             </div>
             <div className="flex gap-4 mt-3 md:mt-0">
               <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
