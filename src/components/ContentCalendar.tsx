@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Instagram, Youtube, Twitter, Facebook, Snapchat } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
+import SnapchatIcon from "./icons/SnapchatIcon";
 import { ScheduledPost, Platform } from "@/types";
 
 // Mock data for scheduled posts
@@ -69,7 +70,7 @@ const getPlatformIcon = (platform: Platform) => {
     case "Twitter (X)":
       return <Twitter size={14} />;
     case "Snapchat":
-      return <Snapchat size={14} />;
+      return <SnapchatIcon size={14} />;
     default:
       return null;
   }

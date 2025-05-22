@@ -22,8 +22,8 @@ import {
   Youtube,
   Twitter,
   Facebook,
-  Snapchat
 } from "lucide-react";
+import SnapchatIcon from "./icons/SnapchatIcon";
 import { cn } from "@/lib/utils";
 
 const UploadForm: React.FC = () => {
@@ -64,7 +64,7 @@ const UploadForm: React.FC = () => {
     },
     { 
       name: "Snapchat", 
-      icon: <Snapchat size={18} />, 
+      icon: <SnapchatIcon size={18} />, 
       class: "snapchat-badge"
     },
   ];

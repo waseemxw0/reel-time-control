@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Instagram, Youtube, Twitter, Facebook, Snapchat } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
+import SnapchatIcon from "./icons/SnapchatIcon";
 import { PostStats, Platform } from "@/types";
 
 // Mock data for post stats
@@ -85,7 +86,7 @@ const getPlatformIcon = (platform: Platform) => {
     case "Twitter (X)":
       return <Twitter size={16} className="text-twitter" />;
     case "Snapchat":
-      return <Snapchat size={16} className="text-snapchat" />;
+      return <SnapchatIcon size={16} className="text-snapchat" />;
     default:
       return null;
   }
