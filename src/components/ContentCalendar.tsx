@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
 import SnapchatIcon from "./icons/SnapchatIcon";
-import { ScheduledPost, Platform } from "@/types";
+import { ScheduledPost, Platform, PlatformAccount } from "@/types";
 
 // Mock data for scheduled posts
 const mockScheduledPosts: ScheduledPost[] = [
@@ -21,6 +21,10 @@ const mockScheduledPosts: ScheduledPost[] = [
     title: "Summer Product Launch",
     date: new Date(2025, 4, 22, 14, 30),
     platforms: ["Instagram Reels", "TikTok"],
+    accounts: [
+      { platform: "Instagram Reels", accountName: "@ig_main" },
+      { platform: "TikTok", accountName: "@tiktok_main" }
+    ],
     status: "scheduled"
   },
   {
@@ -28,6 +32,10 @@ const mockScheduledPosts: ScheduledPost[] = [
     title: "How-to Tutorial",
     date: new Date(2025, 4, 23, 10, 0),
     platforms: ["YouTube Shorts", "TikTok"],
+    accounts: [
+      { platform: "YouTube Shorts", accountName: "@yt_motivation" },
+      { platform: "TikTok", accountName: "@tiktok_clips" }
+    ],
     status: "scheduled"
   },
   {
@@ -35,6 +43,11 @@ const mockScheduledPosts: ScheduledPost[] = [
     title: "Behind the Scenes",
     date: new Date(2025, 4, 24, 16, 15),
     platforms: ["Instagram Reels", "Facebook Reels", "TikTok"],
+    accounts: [
+      { platform: "Instagram Reels", accountName: "@ig_main" },
+      { platform: "Facebook Reels", accountName: "@fb_main" },
+      { platform: "TikTok", accountName: "@tiktok_main" }
+    ],
     status: "scheduled"
   },
   {
@@ -42,6 +55,11 @@ const mockScheduledPosts: ScheduledPost[] = [
     title: "Product Announcement",
     date: new Date(2025, 4, 25, 9, 0),
     platforms: ["Twitter (X)", "Instagram Reels", "Facebook Reels"],
+    accounts: [
+      { platform: "Twitter (X)", accountName: "@x_main" },
+      { platform: "Instagram Reels", accountName: "@ig_quotes" },
+      { platform: "Facebook Reels", accountName: "@fb_main" }
+    ],
     status: "scheduled"
   },
   {
@@ -49,6 +67,12 @@ const mockScheduledPosts: ScheduledPost[] = [
     title: "Weekend Promotion",
     date: new Date(2025, 4, 26, 12, 0),
     platforms: ["Instagram Reels", "Snapchat", "TikTok", "Twitter (X)"],
+    accounts: [
+      { platform: "Instagram Reels", accountName: "@ig_main" },
+      { platform: "Snapchat", accountName: "@snap_fitness" },
+      { platform: "TikTok", accountName: "@tiktok_main" },
+      { platform: "Twitter (X)", accountName: "@x_main" }
+    ],
     status: "scheduled"
   }
 ];

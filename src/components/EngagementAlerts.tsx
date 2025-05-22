@@ -12,10 +12,10 @@ import {
   AlertTriangle, 
   CheckCircle, 
   Zap, 
-  Sync, 
   Calendar as CalendarIcon,
   Clock
 } from "lucide-react";
+import SyncIcon from "./icons/SyncIcon";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +73,7 @@ const getAlertIcon = (type: Alert["type"]) => {
     case "spike":
       return <Zap className="h-5 w-5 text-amber-500" />;
     case "failsafe":
-      return <Sync className="h-5 w-5 text-blue-500" />;
+      return <SyncIcon className="h-5 w-5 text-blue-500" />;
     case "expiry":
       return <AlertTriangle className="h-5 w-5 text-red-500" />;
     case "viral":
