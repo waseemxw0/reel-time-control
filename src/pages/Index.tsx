@@ -4,6 +4,8 @@ import Header from "@/components/Header";
 import UploadForm from "@/components/UploadForm";
 import ContentCalendar from "@/components/ContentCalendar";
 import RecentPostsTable from "@/components/RecentPostsTable";
+import MediaLibrary from "@/components/MediaLibrary";
+import CaptionTemplates from "@/components/CaptionTemplates";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 
@@ -46,6 +48,8 @@ const Index = () => {
               <TabsTrigger value="upload">Upload Content</TabsTrigger>
               <TabsTrigger value="calendar">Content Calendar</TabsTrigger>
               <TabsTrigger value="stats">Performance Stats</TabsTrigger>
+              <TabsTrigger value="library">Media Library</TabsTrigger>
+              <TabsTrigger value="templates">Templates</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upload" className="space-y-6">
@@ -66,6 +70,18 @@ const Index = () => {
               <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-xl font-semibold mb-4">Recent Posts & Stats</h3>
                 <RecentPostsTable />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="library" className="space-y-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <MediaLibrary />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="templates" className="space-y-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <CaptionTemplates />
               </div>
             </TabsContent>
           </Tabs>

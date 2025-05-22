@@ -1,5 +1,5 @@
 
-export type Platform = "TikTok" | "YouTube Shorts" | "Instagram Reels" | "Facebook Reels" | "Twitter (X)" | "Snapchat";
+export type Platform = "TikTok" | "YouTube Shorts" | "Instagram Reels" | "Facebook Reels" | "Twitter (X)" | "Snapchat" | "Pinterest" | "LinkedIn";
 
 export interface Post {
   id: string;

@@ -22,8 +22,10 @@ import {
   Youtube,
   Twitter,
   Facebook,
+  Linkedin,
 } from "lucide-react";
 import SnapchatIcon from "./icons/SnapchatIcon";
+import PinterestIcon from "./icons/PinterestIcon";
 import { cn } from "@/lib/utils";
 
 const UploadForm: React.FC = () => {
@@ -66,6 +68,16 @@ const UploadForm: React.FC = () => {
       name: "Snapchat", 
       icon: <SnapchatIcon size={18} />, 
       class: "snapchat-badge"
+    },
+    { 
+      name: "Pinterest", 
+      icon: <PinterestIcon size={18} />, 
+      class: "pinterest-badge"
+    },
+    { 
+      name: "LinkedIn", 
+      icon: <Linkedin size={18} />, 
+      class: "linkedin-badge"
     },
   ];
 

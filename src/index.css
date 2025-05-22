@@ -126,4 +126,12 @@
   .snapchat-badge {
     @apply bg-snapchat text-black;
   }
+
+  .pinterest-badge {
+    @apply bg-red-600 text-white;
+  }
+
+  .linkedin-badge {
+    @apply bg-blue-700 text-white;
+  }
 }
