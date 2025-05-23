@@ -43,6 +43,10 @@ const AddAccountDialog: React.FC<AddAccountDialogProps> = ({
     }
   };
 
+  const handlePlatformChange = (value: string) => {
+    setSelectedPlatform(value as Platform);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -58,7 +62,7 @@ const AddAccountDialog: React.FC<AddAccountDialogProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="platform">Platform</Label>
-            <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+            <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a platform" />
               </SelectTrigger>
