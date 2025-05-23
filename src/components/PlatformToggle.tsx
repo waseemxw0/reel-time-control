@@ -12,22 +12,26 @@ import { PlatformWithAccounts, Platform, PlatformAccount } from "@/types";
 import { cn } from "@/lib/utils";
 import { platformStyleMap } from "@/config/platforms";
 import PlatformIcon from "./PlatformIcon";
+import AddAccountDialog from "./AddAccountDialog";
+import AddPlatformDialog from "./AddPlatformDialog";
 
 interface PlatformToggleProps {
   platforms: PlatformWithAccounts[];
   selectedAccounts: PlatformAccount[];
   onChange: (accounts: PlatformAccount[]) => void;
+  onPlatformsChange?: (platforms: PlatformWithAccounts[]) => void;
 }
 
 const PlatformToggle: React.FC<PlatformToggleProps> = ({
   platforms,
   selectedAccounts,
   onChange,
+  onPlatformsChange,
 }) => {
   const [openPlatform, setOpenPlatform] = useState<Platform | null>(null);
 
   const getPlatformBadgeClass = (platform: Platform) => {
-    return platformStyleMap[platform] || "";
+    return platformStyleMap[platform] || "bg-gray-500 text-white";
   };
 
   const isPlatformSelected = (platform: Platform) => {
@@ -80,6 +84,27 @@ const PlatformToggle: React.FC<PlatformToggleProps> = ({
       account => account.platform !== platform
     );
     onChange(filteredAccounts);
+  };
+
+  const handleAddAccount = (platform: Platform, accountName: string) => {
+    if (onPlatformsChange) {
+      const updatedPlatforms = platforms.map(p => 
+        p.name === platform 
+          ? { ...p, accounts: [...p.accounts, accountName] }
+          : p
+      );
+      onPlatformsChange(updatedPlatforms);
+    }
+  };
+
+  const handleAddPlatform = (platformName: string) => {
+    if (onPlatformsChange) {
+      const newPlatform: PlatformWithAccounts = {
+        name: platformName as Platform,
+        accounts: []
+      };
+      onPlatformsChange([...platforms, newPlatform]);
+    }
   };
 
   return (
@@ -136,31 +161,55 @@ const PlatformToggle: React.FC<PlatformToggleProps> = ({
                         </label>
                       </div>
                     ))}
+                    {platformObj.accounts.length === 0 && (
+                      <div className="text-xs text-muted-foreground text-center py-2">
+                        No accounts yet. Add one below.
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="p-2 border-t flex justify-between">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSelectAllPlatform(platformObj.name, platformObj.accounts)}
-                    className="text-xs"
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeselectAllPlatform(platformObj.name)}
-                    className="text-xs"
-                  >
-                    Clear
-                  </Button>
+                <div className="p-2 border-t space-y-2">
+                  <div className="flex justify-between">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSelectAllPlatform(platformObj.name, platformObj.accounts)}
+                      className="text-xs"
+                      disabled={platformObj.accounts.length === 0}
+                    >
+                      Select All
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeselectAllPlatform(platformObj.name)}
+                      className="text-xs"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                  {onPlatformsChange && (
+                    <AddAccountDialog
+                      platforms={[platformObj]}
+                      onAddAccount={handleAddAccount}
+                    />
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
           );
         })}
       </div>
+      
+      {onPlatformsChange && (
+        <div className="flex gap-2">
+          <AddPlatformDialog onAddPlatform={handleAddPlatform} />
+          <AddAccountDialog
+            platforms={platforms}
+            onAddAccount={handleAddAccount}
+          />
+        </div>
+      )}
     </div>
   );
 };

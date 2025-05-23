@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Platform, PlatformAccount } from "@/types";
+import { Platform, PlatformAccount, PlatformWithAccounts } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calendar as CalendarIcon, 
@@ -28,6 +28,7 @@ const UploadForm: React.FC = () => {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
   const [selectedAccounts, setSelectedAccounts] = useState<PlatformAccount[]>([]);
+  const [platforms, setPlatforms] = useState<PlatformWithAccounts[]>(platformsConfig);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>("12:00");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -56,12 +57,16 @@ const UploadForm: React.FC = () => {
     setSelectedAccounts(accounts);
   };
 
+  const handlePlatformsChange = (newPlatforms: PlatformWithAccounts[]) => {
+    setPlatforms(newPlatforms);
+  };
+
   const getSelectedPlatforms = (): Platform[] => {
-    const platforms = new Set<Platform>();
+    const platformsSet = new Set<Platform>();
     selectedAccounts.forEach(account => {
-      platforms.add(account.platform);
+      platformsSet.add(account.platform);
     });
-    return Array.from(platforms);
+    return Array.from(platformsSet);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -89,11 +94,11 @@ const UploadForm: React.FC = () => {
 
     // Here would normally be API calls to your backend
     setTimeout(() => {
-      const selectedPlatforms = getSelectedPlatforms();
+      const selectedPlatformsArray = getSelectedPlatforms();
       
       toast({
         title: "Post scheduled!",
-        description: `Your content will be posted to ${selectedAccounts.length} accounts across ${selectedPlatforms.length} platforms on ${format(date!, "PPP")} at ${time}.`,
+        description: `Your content will be posted to ${selectedAccounts.length} accounts across ${selectedPlatformsArray.length} platforms on ${format(date!, "PPP")} at ${time}.`,
       });
       
       // Reset form
@@ -180,9 +185,10 @@ const UploadForm: React.FC = () => {
           <div className="space-y-2">
             <Label>Choose Platforms & Accounts</Label>
             <PlatformToggle 
-              platforms={platformsConfig} 
+              platforms={platforms} 
               selectedAccounts={selectedAccounts}
               onChange={handlePlatformAccountsChange}
+              onPlatformsChange={handlePlatformsChange}
             />
             <div className="mt-1">
               {selectedAccounts.length > 0 ? (
