@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Platform, PlatformAccount, PlatformWithAccounts } from "@/types";
+import { Platform, PlatformAccount, PlatformWithAccounts, PostType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calendar as CalendarIcon, 
