@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -24,6 +23,7 @@ import { cn } from "@/lib/utils";
 import PlatformToggle from "./PlatformToggle";
 import { platformsConfig } from "@/config/platforms";
 import PostTypeSelector from "./PostTypeSelector";
+import CaptionOptimizer from "./CaptionOptimizer";
 
 const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -123,6 +123,10 @@ const UploadForm: React.FC = () => {
     }, 1500);
   };
 
+  const handleCaptionUpdate = (newCaption: string) => {
+    setCaption(newCaption);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
@@ -192,6 +196,11 @@ const UploadForm: React.FC = () => {
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               className="min-h-32 resize-y"
+            />
+            
+            <CaptionOptimizer
+              caption={caption}
+              onCaptionUpdate={handleCaptionUpdate}
             />
           </div>
 
