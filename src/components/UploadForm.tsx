@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -11,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Platform, PlatformAccount, PlatformWithAccounts } from "@/types";
+import { Platform, PlatformAccount } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calendar as CalendarIcon, 
@@ -22,42 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PlatformToggle from "./PlatformToggle";
-
-// Available platforms with their accounts
-const availablePlatforms: PlatformWithAccounts[] = [
-  {
-    name: "TikTok",
-    accounts: ["@tiktok_main", "@tiktok_gym", "@tiktok_clips"]
-  },
-  {
-    name: "Instagram Reels",
-    accounts: ["@ig_main", "@ig_quotes"]
-  },
-  {
-    name: "YouTube Shorts",
-    accounts: ["@yt_ai", "@yt_motivation"]
-  },
-  {
-    name: "Facebook Reels",
-    accounts: ["@fb_main"]
-  },
-  {
-    name: "Twitter (X)",
-    accounts: ["@x_main", "@x_alt"]
-  },
-  {
-    name: "Snapchat",
-    accounts: ["@snap_ai", "@snap_fitness"]
-  },
-  {
-    name: "Pinterest",
-    accounts: ["Motivation Board", "Quotes Board"]
-  },
-  {
-    name: "LinkedIn",
-    accounts: ["Sam Creator Profile", "AI Biz Page"]
-  }
-];
+import { platformsConfig } from "@/config/platforms";
 
 const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -216,7 +180,7 @@ const UploadForm: React.FC = () => {
           <div className="space-y-2">
             <Label>Choose Platforms & Accounts</Label>
             <PlatformToggle 
-              platforms={availablePlatforms} 
+              platforms={platformsConfig} 
               selectedAccounts={selectedAccounts}
               onChange={handlePlatformAccountsChange}
             />
