@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import PlatformToggle from "./PlatformToggle";
 import { platformsConfig } from "@/config/platforms";
+import PostTypeSelector from "./PostTypeSelector";
 
 const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -35,6 +36,7 @@ const UploadForm: React.FC = () => {
   const [notes, setNotes] = useState<string>("");
   const [contentIntent, setContentIntent] = useState<string>("Growth");
   const [isExperiment, setIsExperiment] = useState<boolean>(false);
+  const [postType, setPostType] = useState<PostType>("Reel / Short");
   const { toast } = useToast();
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,6 +71,10 @@ const UploadForm: React.FC = () => {
     return Array.from(platformsSet);
   };
 
+  const handlePostTypeChange = (newPostType: PostType) => {
+    setPostType(newPostType);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -98,7 +104,7 @@ const UploadForm: React.FC = () => {
       
       toast({
         title: "Post scheduled!",
-        description: `Your content will be posted to ${selectedAccounts.length} accounts across ${selectedPlatformsArray.length} platforms on ${format(date!, "PPP")} at ${time}.`,
+        description: `Your ${postType.toLowerCase()} will be posted to ${selectedAccounts.length} accounts across ${selectedPlatformsArray.length} platforms on ${format(date!, "PPP")} at ${time}.`,
       });
       
       // Reset form
@@ -111,6 +117,7 @@ const UploadForm: React.FC = () => {
       setNotes("");
       setContentIntent("Growth");
       setIsExperiment(false);
+      setPostType("Reel / Short");
       setIsLoading(false);
     }, 1500);
   };
@@ -119,6 +126,11 @@ const UploadForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
+          <PostTypeSelector
+            selectedPostType={postType}
+            onPostTypeChange={handlePostTypeChange}
+          />
+          
           <div className="space-y-2">
             <Label htmlFor="video">Content</Label>
             <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">

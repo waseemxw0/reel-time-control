@@ -1,5 +1,6 @@
-
 export type Platform = "TikTok" | "YouTube Shorts" | "Instagram Reels" | "Facebook Reels" | "Twitter (X)" | "Snapchat" | "Pinterest" | "LinkedIn";
+
+export type PostType = "Reel / Short" | "Story" | "Feed Post (Instagram/Facebook)" | "YouTube Video (not Short)" | "Carousel" | "Tweet / X Video";
 
 export interface PlatformAccount {
   platform: Platform;
@@ -18,6 +19,7 @@ export interface Post {
   notes?: string;
   contentIntent?: "Growth" | "Lead" | "Brand" | "Viral";
   isExperiment?: boolean;
+  postType?: PostType;
 }
 
 export interface PostStats {
