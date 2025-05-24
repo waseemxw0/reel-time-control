@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -5,19 +6,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Platform, PlatformAccount, PlatformWithAccounts, PostType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useChannels } from "@/hooks/useChannels";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,27 +22,40 @@ import {
   Lightbulb
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import PlatformToggle from "./PlatformToggle";
-import { platformsConfig } from "@/config/platforms";
-import PostTypeSelector from "./PostTypeSelector";
+import MultiSelect from "./MultiSelect";
 import CaptionOptimizer from "./CaptionOptimizer";
 
 const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
-  const [selectedAccount, setSelectedAccount] = useState<string>("");
-  const [selectedAccounts, setSelectedAccounts] = useState<PlatformAccount[]>([]);
-  const [platforms, setPlatforms] = useState<PlatformWithAccounts[]>(platformsConfig);
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
+  const [selectedPostTypes, setSelectedPostTypes] = useState<string[]>([]);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [time, setTime] = useState<string>("12:00");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
   const [contentIntent, setContentIntent] = useState<string>("Growth");
   const [isExperiment, setIsExperiment] = useState<boolean>(false);
-  const [postType, setPostType] = useState<PostType>("Reel / Short");
   const { toast } = useToast();
   const { channels, isLoading: channelsLoading } = useChannels();
+
+  // Post type options
+  const postTypeOptions = [
+    { value: "Reel", label: "Reel" },
+    { value: "Story", label: "Story" },
+    { value: "Feed Post", label: "Feed Post" },
+    { value: "Short", label: "Short" },
+    { value: "YouTube Video", label: "YouTube Video" },
+    { value: "Carousel", label: "Carousel" },
+    { value: "Tweet", label: "Tweet" }
+  ];
+
+  // Convert channels to options format
+  const accountOptions = channels.map(channel => ({
+    value: channel.account,
+    label: `${channel.account} (${channel.platform})`
+  }));
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,24 +73,8 @@ const UploadForm: React.FC = () => {
     setTime(e.target.value);
   };
 
-  const handlePlatformAccountsChange = (accounts: PlatformAccount[]) => {
-    setSelectedAccounts(accounts);
-  };
-
-  const handlePlatformsChange = (newPlatforms: PlatformWithAccounts[]) => {
-    setPlatforms(newPlatforms);
-  };
-
-  const getSelectedPlatforms = (): Platform[] => {
-    const platformsSet = new Set<Platform>();
-    selectedAccounts.forEach(account => {
-      platformsSet.add(account.platform);
-    });
-    return Array.from(platformsSet);
-  };
-
-  const handlePostTypeChange = (newPostType: PostType) => {
-    setPostType(newPostType);
+  const handleCaptionUpdate = (newCaption: string) => {
+    setCaption(newCaption);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,10 +89,19 @@ const UploadForm: React.FC = () => {
       return;
     }
 
-    if (!selectedAccount) {
+    if (selectedAccounts.length === 0) {
       toast({
-        title: "No account selected",
-        description: "Please select an account to post to.",
+        title: "No accounts selected",
+        description: "Please select at least one account to post to.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (selectedPostTypes.length === 0) {
+      toast({
+        title: "No post types selected",
+        description: "Please select at least one post type.",
         variant: "destructive"
       });
       return;
@@ -111,7 +110,7 @@ const UploadForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Save to Supabase posts table
+      // Get authenticated user
       const { data: user } = await supabase.auth.getUser();
       
       if (!user.user) {
@@ -128,47 +127,55 @@ const UploadForm: React.FC = () => {
       const [hours, minutes] = time.split(':');
       scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
+      // Create a post row for each account × post type combination
+      const postInserts = [];
+      for (const account of selectedAccounts) {
+        for (const postType of selectedPostTypes) {
+          postInserts.push({
+            user_id: user.user.id,
+            caption,
+            account,
+            post_type: postType,
+            scheduled_date: scheduledDateTime.toISOString(),
+            scheduled_time: time,
+            notes,
+            content_intent: contentIntent,
+            is_experiment: isExperiment
+          });
+        }
+      }
+
       const { error } = await supabase
         .from('posts')
-        .insert({
-          user_id: user.user.id,
-          caption,
-          account: selectedAccount,
-          scheduled_date: scheduledDateTime.toISOString(),
-          scheduled_time: time,
-          notes,
-          content_intent: contentIntent,
-          is_experiment: isExperiment,
-          post_type: postType
-        });
+        .insert(postInserts);
 
       if (error) {
-        console.error('Error saving post:', error);
+        console.error('Error saving posts:', error);
         toast({
           title: "Error",
-          description: "Failed to schedule post. Please try again.",
+          description: "Failed to schedule posts. Please try again.",
           variant: "destructive"
         });
         return;
       }
 
+      const totalPosts = selectedAccounts.length * selectedPostTypes.length;
       toast({
-        title: "Post scheduled!",
-        description: `Your ${postType.toLowerCase()} will be posted to ${selectedAccount} on ${format(date!, "PPP")} at ${time}.`,
+        title: "Posts scheduled!",
+        description: `${totalPosts} posts will be posted across ${selectedAccounts.length} accounts on ${format(date!, "PPP")} at ${time}.`,
       });
       
       // Reset form
       setVideoFile(null);
       setThumbnailFile(null);
       setCaption("");
-      setSelectedAccount("");
       setSelectedAccounts([]);
+      setSelectedPostTypes([]);
       setDate(new Date());
       setTime("12:00");
       setNotes("");
       setContentIntent("Growth");
       setIsExperiment(false);
-      setPostType("Reel / Short");
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -181,19 +188,10 @@ const UploadForm: React.FC = () => {
     }
   };
 
-  const handleCaptionUpdate = (newCaption: string) => {
-    setCaption(newCaption);
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <PostTypeSelector
-            selectedPostType={postType}
-            onPostTypeChange={handlePostTypeChange}
-          />
-          
           <div className="space-y-2">
             <Label htmlFor="video">Content</Label>
             <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">
@@ -247,19 +245,29 @@ const UploadForm: React.FC = () => {
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="account">Select Account</Label>
-            <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-              <SelectTrigger>
-                <SelectValue placeholder={channelsLoading ? "Loading accounts..." : "Choose an account"} />
-              </SelectTrigger>
-              <SelectContent>
-                {channels.map((channel) => (
-                  <SelectItem key={channel.id} value={channel.account}>
-                    {channel.account} ({channel.platform})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Select Accounts</Label>
+            <MultiSelect
+              options={accountOptions}
+              selected={selectedAccounts}
+              onChange={setSelectedAccounts}
+              placeholder={channelsLoading ? "Loading accounts..." : "Choose accounts"}
+            />
+            <p className="text-xs text-muted-foreground">
+              {selectedAccounts.length} accounts selected
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Post Types</Label>
+            <MultiSelect
+              options={postTypeOptions}
+              selected={selectedPostTypes}
+              onChange={setSelectedPostTypes}
+              placeholder="Choose post types"
+            />
+            <p className="text-xs text-muted-foreground">
+              {selectedPostTypes.length} post types selected
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -276,25 +284,6 @@ const UploadForm: React.FC = () => {
               caption={caption}
               onCaptionUpdate={handleCaptionUpdate}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Choose Platforms & Accounts</Label>
-            <PlatformToggle 
-              platforms={platforms} 
-              selectedAccounts={selectedAccounts}
-              onChange={handlePlatformAccountsChange}
-              onPlatformsChange={handlePlatformsChange}
-            />
-            <div className="mt-1">
-              {selectedAccounts.length > 0 ? (
-                <span className="text-xs text-muted-foreground">
-                  {selectedAccounts.length} accounts selected across {getSelectedPlatforms().length} platforms
-                </span>
-              ) : (
-                <span className="text-xs text-muted-foreground">No accounts selected</span>
-              )}
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -386,6 +375,17 @@ const UploadForm: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {selectedAccounts.length > 0 && selectedPostTypes.length > 0 && (
+            <div className="p-3 bg-muted rounded-lg">
+              <p className="text-sm font-medium text-muted-foreground">
+                This will create {selectedAccounts.length * selectedPostTypes.length} posts:
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {selectedAccounts.length} accounts × {selectedPostTypes.length} post types
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
@@ -396,7 +396,7 @@ const UploadForm: React.FC = () => {
           disabled={isLoading}
           className="bg-primary hover:bg-primary/90 text-white"
         >
-          {isLoading ? "Scheduling..." : "Schedule Post"}
+          {isLoading ? "Scheduling..." : "Schedule Posts"}
         </Button>
       </div>
     </form>
