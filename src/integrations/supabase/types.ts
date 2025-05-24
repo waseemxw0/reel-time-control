@@ -24,6 +24,33 @@ export type Database = {
         }
         Relationships: []
       }
+      channels: {
+        Row: {
+          account: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          platform: string | null
+          updated_at: string
+        }
+        Insert: {
+          account: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       control_mode: {
         Row: {
           duration: number | null
@@ -93,6 +120,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      posts: {
+        Row: {
+          account: string | null
+          caption: string | null
+          content_intent: string | null
+          created_at: string
+          id: string
+          is_experiment: boolean | null
+          notes: string | null
+          post_type: string | null
+          scheduled_date: string | null
+          scheduled_time: string | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string
+          user_id: string | null
+          video_url: string | null
+        }
+        Insert: {
+          account?: string | null
+          caption?: string | null
+          content_intent?: string | null
+          created_at?: string
+          id?: string
+          is_experiment?: boolean | null
+          notes?: string | null
+          post_type?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          account?: string | null
+          caption?: string | null
+          content_intent?: string | null
+          created_at?: string
+          id?: string
+          is_experiment?: boolean | null
+          notes?: string | null
+          post_type?: string | null
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          thumbnail_url?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
       }
       scripts: {
         Row: {

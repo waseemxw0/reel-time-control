@@ -5,6 +5,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -12,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { Platform, PlatformAccount, PlatformWithAccounts, PostType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useChannels } from "@/hooks/useChannels";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Calendar as CalendarIcon, 
   Clock,
@@ -29,6 +38,7 @@ const UploadForm: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [caption, setCaption] = useState<string>("");
+  const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedAccounts, setSelectedAccounts] = useState<PlatformAccount[]>([]);
   const [platforms, setPlatforms] = useState<PlatformWithAccounts[]>(platformsConfig);
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -39,6 +49,7 @@ const UploadForm: React.FC = () => {
   const [isExperiment, setIsExperiment] = useState<boolean>(false);
   const [postType, setPostType] = useState<PostType>("Reel / Short");
   const { toast } = useToast();
+  const { channels, isLoading: channelsLoading } = useChannels();
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -76,7 +87,7 @@ const UploadForm: React.FC = () => {
     setPostType(newPostType);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!videoFile) {
@@ -88,10 +99,10 @@ const UploadForm: React.FC = () => {
       return;
     }
 
-    if (selectedAccounts.length === 0) {
+    if (!selectedAccount) {
       toast({
-        title: "No accounts selected",
-        description: "Please select at least one platform account to post to.",
+        title: "No account selected",
+        description: "Please select an account to post to.",
         variant: "destructive"
       });
       return;
@@ -99,19 +110,58 @@ const UploadForm: React.FC = () => {
 
     setIsLoading(true);
 
-    // Here would normally be API calls to your backend
-    setTimeout(() => {
-      const selectedPlatformsArray = getSelectedPlatforms();
+    try {
+      // Save to Supabase posts table
+      const { data: user } = await supabase.auth.getUser();
       
+      if (!user.user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to schedule posts.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const scheduledDateTime = date ? new Date(date) : new Date();
+      const [hours, minutes] = time.split(':');
+      scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+
+      const { error } = await supabase
+        .from('posts')
+        .insert({
+          user_id: user.user.id,
+          caption,
+          account: selectedAccount,
+          scheduled_date: scheduledDateTime.toISOString(),
+          scheduled_time: time,
+          notes,
+          content_intent: contentIntent,
+          is_experiment: isExperiment,
+          post_type: postType
+        });
+
+      if (error) {
+        console.error('Error saving post:', error);
+        toast({
+          title: "Error",
+          description: "Failed to schedule post. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       toast({
         title: "Post scheduled!",
-        description: `Your ${postType.toLowerCase()} will be posted to ${selectedAccounts.length} accounts across ${selectedPlatformsArray.length} platforms on ${format(date!, "PPP")} at ${time}.`,
+        description: `Your ${postType.toLowerCase()} will be posted to ${selectedAccount} on ${format(date!, "PPP")} at ${time}.`,
       });
       
       // Reset form
       setVideoFile(null);
       setThumbnailFile(null);
       setCaption("");
+      setSelectedAccount("");
       setSelectedAccounts([]);
       setDate(new Date());
       setTime("12:00");
@@ -119,8 +169,16 @@ const UploadForm: React.FC = () => {
       setContentIntent("Growth");
       setIsExperiment(false);
       setPostType("Reel / Short");
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleCaptionUpdate = (newCaption: string) => {
@@ -188,6 +246,22 @@ const UploadForm: React.FC = () => {
         </div>
         
         <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="account">Select Account</Label>
+            <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+              <SelectTrigger>
+                <SelectValue placeholder={channelsLoading ? "Loading accounts..." : "Choose an account"} />
+              </SelectTrigger>
+              <SelectContent>
+                {channels.map((channel) => (
+                  <SelectItem key={channel.id} value={channel.account}>
+                    {channel.account} ({channel.platform})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="caption">Caption & Hashtags</Label>
             <Textarea 
